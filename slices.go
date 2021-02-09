@@ -28,7 +28,7 @@ func FilterString(slice []string, callback func(index int, value string) bool) [
 }
 
 // Filter returns a slice of values where callback evaluates to true.
-func Filter(arg interface{}, callback func(index int, value interface{}) bool) (interface{}, error) {
+func Filter(arg interface{}, callback func(index int, value interface{}) bool) ([]interface{}, error) {
 	if isSlice(arg) {
 		slice := makeSlice(arg)
 		var result []interface{}
