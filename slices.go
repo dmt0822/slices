@@ -106,6 +106,15 @@ func Pop(arg interface{}) ([]interface{}, error) {
 	return slice[:len(slice)-1], nil
 }
 
+// Shift removes the first element from a slice.
+func Shift(arg interface{}) ([]interface{}, error) {
+	if !isSlice(arg) {
+		return nil, errors.New("Shift requires a slice")
+	}
+	slice := makeSlice(arg)
+	return slice[1:], nil
+}
+
 func hasLength(arg []interface{}) bool {
 	return len(arg) > 0
 }
