@@ -75,6 +75,36 @@ func Some(arg interface{}, callback func(index int, value interface{}) bool) (bo
 	return false, errors.New("Some requires a slice")
 }
 
+// RemoveAt removes a value from a slice at the specified index.
+func RemoveAt(arg interface{}, index int) ([]interface{}, error) {
+	if isSlice(arg) {
+		slice := makeSlice(arg)
+		if !hasLength(slice) {
+			return nil, errors.New("Slice is empty")
+		}
+		if !isIndexInRange(slice, index) {
+			return nil, errors.New("Index out of range")
+		}
+		firstHalfLen := len(slice[:index])
+		secondHalfLen := len(slice[index+1:])
+		firstHalf := make([]interface{}, firstHalfLen)
+		secondHalf := make([]interface{}, secondHalfLen)
+		copy(firstHalf, slice[:index])
+		copy(secondHalf, slice[index+1:])
+		result := append(firstHalf, secondHalf...)
+		return result, nil
+	}
+	return nil, errors.New("RemoveAt requires a slice")
+}
+
+func hasLength(arg []interface{}) bool {
+	return len(arg) > 0
+}
+
+func isIndexInRange(arg []interface{}, index int) bool {
+	return index < len(arg) && index > 0
+}
+
 func isSlice(arg interface{}) bool {
 	argValue := reflect.ValueOf(arg)
 	return argValue.Kind() == reflect.Slice
