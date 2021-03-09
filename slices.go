@@ -97,6 +97,15 @@ func RemoveAt(arg interface{}, index int) ([]interface{}, error) {
 	return nil, errors.New("RemoveAt requires a slice")
 }
 
+// Pop removes the last element from a slice.
+func Pop(arg interface{}) ([]interface{}, error) {
+	if !isSlice(arg) {
+		return nil, errors.New("Pop requires a slice")
+	}
+	slice := makeSlice(arg)
+	return slice[:len(slice)-1], nil
+}
+
 func hasLength(arg []interface{}) bool {
 	return len(arg) > 0
 }
