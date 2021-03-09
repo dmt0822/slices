@@ -2,6 +2,7 @@ package slices
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 )
 
@@ -286,4 +287,8 @@ func TestSomeNonSlice(t *testing.T) {
 	if ok.Error() != expect.Error() {
 		failTest(t, expect, ok)
 	}
+}
+
+func failTest(t *testing.T, expect interface{}, actual interface{}) {
+	t.Errorf(fmt.Sprintf("\nExpected: %v\nActual: %v", expect, actual))
 }
