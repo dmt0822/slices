@@ -106,6 +106,19 @@ func Pop(arg interface{}) ([]interface{}, error) {
 	return slice[:len(slice)-1], nil
 }
 
+// Contains searches a slice for a given value. Returns false is arg is not a slice.
+func Contains(arg interface{}, searchFor interface{}) bool {
+	if isSlice(arg) {
+		slice := makeSlice(arg)
+		for _, val := range slice {
+			if val == searchFor {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // Shift removes the first element from a slice.
 func Shift(arg interface{}) ([]interface{}, error) {
 	if !isSlice(arg) {

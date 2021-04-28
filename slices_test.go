@@ -289,6 +289,33 @@ func TestSomeNonSlice(t *testing.T) {
 	}
 }
 
+func TestContainsTrue(t *testing.T) {
+	input := []string{"this", "is", "a", "test", "slice"}
+	expect := true
+	actual := Contains(input, "is")
+	if actual != expect {
+		failTest(t, expect, actual)
+	}
+}
+
+func TestContainsFalse(t *testing.T) {
+	input := []string{"another", "test", "slice"}
+	expect := false
+	actual := Contains(input, "not found")
+	if actual != expect {
+		failTest(t, expect, actual)
+	}
+}
+
+func TestContainsNonSlice(t *testing.T) {
+	input := "not a slice"
+	expect := false
+	actual := Contains(input, "not found")
+	if actual != expect {
+		failTest(t, expect, actual)
+	}
+}
+
 func failTest(t *testing.T, expect interface{}, actual interface{}) {
 	t.Errorf(fmt.Sprintf("\nExpected: %v\nActual: %v", expect, actual))
 }
