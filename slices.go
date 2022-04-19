@@ -2,12 +2,16 @@ package slices
 
 import (
 	"errors"
-	"reflect"
+
+	"golang.org/x/exp/constraints"
 )
 
-// FilterInt filters a slice of integers.
-func FilterInt(slice []int, callback func(index int, value int) bool) []int {
-	var result []int
+// Filter performs the callback func on each entry, returning each entry where callback returns true.
+func Filter[T any](slice []T, callback func(index int, value T) bool) []T {
+	if len(slice) == 0 {
+		return slice
+	}
+	var result []T
 	for index, value := range slice {
 		if callback(index, value) {
 			result = append(result, value)
@@ -16,138 +20,89 @@ func FilterInt(slice []int, callback func(index int, value int) bool) []int {
 	return result
 }
 
-// FilterString filters a slice of strings.
-func FilterString(slice []string, callback func(index int, value string) bool) []string {
-	var result []string
+// Every returns true if callback evaluates to true for every entry in the slice.
+func Every[T any](slice []T, callback func(index int, value T) bool) bool {
+	if len(slice) == 0 {
+		return false
+	}
+	for index, value := range slice {
+		if !callback(index, value) {
+			return false
+		}
+	}
+	return true
+}
+
+// Some returns true if callback evaluates to true for any entry in the slice.
+func Some[T any](slice []T, callback func(index int, value T) bool) bool {
 	for index, value := range slice {
 		if callback(index, value) {
-			result = append(result, value)
+			return true
 		}
 	}
-	return result
-}
-
-// Filter returns a slice of values where callback evaluates to true.
-func Filter(arg interface{}, callback func(index int, value interface{}) bool) ([]interface{}, error) {
-	if isSlice(arg) {
-		slice := makeSlice(arg)
-		var result []interface{}
-
-		for index, value := range slice {
-			if callback(index, value) {
-				result = append(result, value)
-			}
-		}
-
-		return result, nil
-	}
-
-	return nil, errors.New("Filter requires a slice")
-}
-
-// Every returns true if callback evaluates to true for every value in the slice.
-func Every(arg interface{}, callback func(index int, value interface{}) bool) (bool, error) {
-	if isSlice(arg) {
-		slice := makeSlice(arg)
-
-		for index, value := range slice {
-			if !callback(index, value) {
-				return false, nil
-			}
-		}
-		return true, nil
-	}
-	return false, errors.New("Every requires a slice")
-}
-
-// Some returns true if callback evaluates to true for any value in the slice.
-func Some(arg interface{}, callback func(index int, value interface{}) bool) (bool, error) {
-	if isSlice(arg) {
-		slice := makeSlice(arg)
-
-		for index, value := range slice {
-			if callback(index, value) {
-				return true, nil
-			}
-		}
-		return false, nil
-	}
-	return false, errors.New("Some requires a slice")
+	return false
 }
 
 // RemoveAt removes a value from a slice at the specified index.
-func RemoveAt(arg interface{}, index int) ([]interface{}, error) {
-	if isSlice(arg) {
-		slice := makeSlice(arg)
-		if !hasLength(slice) {
-			return nil, errors.New("Slice is empty")
-		}
-		if !isIndexInRange(slice, index) {
-			return nil, errors.New("Index out of range")
-		}
-		firstHalfLen := len(slice[:index])
-		secondHalfLen := len(slice[index+1:])
-		firstHalf := make([]interface{}, firstHalfLen)
-		secondHalf := make([]interface{}, secondHalfLen)
-		copy(firstHalf, slice[:index])
-		copy(secondHalf, slice[index+1:])
-		result := append(firstHalf, secondHalf...)
-		return result, nil
+func RemoveAt[T any](slice []T, index int) ([]T, error) {
+	if len(slice) == 0 {
+		return nil, errors.New("slice is empty")
 	}
-	return nil, errors.New("RemoveAt requires a slice")
+	if index < 0 || index > len(slice)-1 {
+		return nil, errors.New("index out of range")
+	}
+	firstHalfLen := len(slice[:index])
+	secondHalfLen := len(slice[index+1:])
+	firstHalf := make([]T, firstHalfLen)
+	secondHalf := make([]T, secondHalfLen)
+	copy(firstHalf, slice[:index])
+	copy(secondHalf, slice[index+1:])
+	result := append(firstHalf, secondHalf...)
+	return result, nil
 }
 
 // Pop removes the last element from a slice.
-func Pop(arg interface{}) ([]interface{}, error) {
-	if !isSlice(arg) {
-		return nil, errors.New("Pop requires a slice")
+func Pop[T any](slice []T) []T {
+	if len(slice) == 0 {
+		return slice
 	}
-	slice := makeSlice(arg)
-	return slice[:len(slice)-1], nil
+	return slice[:len(slice)-1]
 }
 
-// Contains searches a slice for a given value. Returns false is arg is not a slice.
-func Contains(arg interface{}, searchFor interface{}) bool {
-	if isSlice(arg) {
-		slice := makeSlice(arg)
-		for _, val := range slice {
-			if val == searchFor {
-				return true
-			}
+// Contains searches a slice for a given value.
+func Contains[T comparable](slice []T, searchFor T) bool {
+	for _, val := range slice {
+		if val == searchFor {
+			return true
 		}
 	}
 	return false
 }
 
 // Shift removes the first element from a slice.
-func Shift(arg interface{}) ([]interface{}, error) {
-	if !isSlice(arg) {
-		return nil, errors.New("Shift requires a slice")
+func Shift[T any](slice []T) []T {
+	if len(slice) == 0 {
+		return slice
 	}
-	slice := makeSlice(arg)
-	return slice[1:], nil
+	return slice[1:]
 }
 
-func hasLength(arg []interface{}) bool {
-	return len(arg) > 0
-}
-
-func isIndexInRange(arg []interface{}, index int) bool {
-	return index < len(arg) && index > 0
-}
-
-func isSlice(arg interface{}) bool {
-	argValue := reflect.ValueOf(arg)
-	return argValue.Kind() == reflect.Slice
-}
-
-func makeSlice(arg interface{}) []interface{} {
-	argValue := reflect.ValueOf(arg)
-	slice := make([]interface{}, argValue.Len())
-
-	for i := 0; i < argValue.Len(); i++ {
-		slice[i] = argValue.Index(i).Interface()
+// Min returns the lowest entry in the slice.
+func Min[T constraints.Ordered](slice []T) (result T) {
+	for _, val := range slice {
+		if val < result {
+			result = val
+		}
 	}
+	return result
+}
 
-	return slice
+// Max returns the highest entry in the slice.
+func Max[T constraints.Ordered](slice []T) (result T) {
+	for _, val := range slice {
+		if val > result {
+			result = val
+		}
+	}
+	return result
 }

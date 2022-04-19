@@ -1,25 +1,15 @@
 package slices
 
 import (
-	"errors"
-	"fmt"
 	"testing"
 )
 
 func TestEveryTrue(t *testing.T) {
 	input := []string{"this", "is", "a", "test", "slice"}
 	expect := true
-	actual, ok := Every(input, func(index int, value interface{}) bool {
-		if val, isString := value.(string); isString {
-			return len(val) > 0
-		}
-		return false
+	actual := Every(input, func(index int, value string) bool {
+		return len(value) > 0
 	})
-
-	if ok != nil {
-		failTest(t, expect, ok)
-		return
-	}
 
 	if actual != expect {
 		failTest(t, expect, actual)
@@ -29,52 +19,33 @@ func TestEveryTrue(t *testing.T) {
 func TestEveryFalse(t *testing.T) {
 	input := []string{"this", "is", "a", "test", "slice"}
 	expect := false
-	actual, ok := Every(input, func(index int, value interface{}) bool {
-		if val, isString := value.(string); isString {
-			return len(val) == 0
-		}
-		return false
+	actual := Every(input, func(index int, value string) bool {
+		return len(value) > 3
 	})
-
-	if ok != nil {
-		failTest(t, expect, ok)
-		return
-	}
 
 	if actual != expect {
 		failTest(t, expect, actual)
 	}
 }
 
-func TestEveryNonSlice(t *testing.T) {
-	input := "testing"
-	expect := errors.New("Every requires a slice")
-	_, ok := Every(input, func(index int, value interface{}) bool {
-		if val, isString := value.(string); isString {
-			return len(val) == 0
-		}
-		return false
+func TestEveryEmptySlice(t *testing.T) {
+	var input []string
+	expect := false
+	actual := Every(input, func(index int, value string) bool {
+		return len(value) > 0
 	})
 
-	if ok.Error() != expect.Error() {
-		failTest(t, expect, ok)
+	if actual != expect {
+		failTest(t, expect, actual)
 	}
 }
 
-func TestFilter(t *testing.T) {
+func TestFilterWithString(t *testing.T) {
 	input := []string{"this", "is", "a", "test", "slice"}
 	expect := []string{"this", "test", "slice"}
-	actual, ok := Filter(input, func(index int, value interface{}) bool {
-		if val, isString := value.(string); isString {
-			return len(val) > 2
-		}
-		return false
+	actual := Filter(input, func(index int, value string) bool {
+		return len(value) > 2
 	})
-
-	if ok != nil {
-		failTest(t, expect, ok)
-		return
-	}
 
 	if len(actual) != len(expect) {
 		failTest(t, expect, actual)
@@ -88,40 +59,52 @@ func TestFilter(t *testing.T) {
 	}
 }
 
-func TestFilterNonSlice(t *testing.T) {
-	input := "testing"
-	expect := errors.New("Filter requires a slice")
-	_, ok := Filter(input, func(index int, value interface{}) bool {
-		if val, isString := value.(string); isString {
-			return len(val) == 0
-		}
-		return false
+func TestFilterWithInt(t *testing.T) {
+	input := []int{0, 1, 2, 3, 4, 5, 6}
+	expect := []int{0, 2, 4, 6}
+	actual := Filter(input, func(index int, value int) bool {
+		return value%2 == 0
 	})
 
-	if ok == nil {
-		failTest(t, expect, ok)
+	if len(actual) != len(expect) {
+		failTest(t, expect, actual)
 		return
 	}
 
-	if ok.Error() != expect.Error() {
-		failTest(t, expect, ok)
+	for index, actualVal := range actual {
+		if actualVal != expect[index] {
+			failTest(t, expect, actual)
+		}
+	}
+}
+
+func TestFilterEmptySlice(t *testing.T) {
+	input := []int{}
+	expect := []int{}
+	actual := Filter(input, func(index, value int) bool {
+		return value%2 == 0
+	})
+	if len(actual) > 0 {
+		failTest(t, expect, actual)
+		return
+	}
+}
+
+func TestFilterNilSlice(t *testing.T) {
+	var input []int
+	actual := Filter(input, func(index int, value int) bool {
+		return value == 0
+	})
+	if len(actual) > 0 {
+		failTest(t, []int{}, actual)
+		return
 	}
 }
 
 func TestPop(t *testing.T) {
 	input := []string{"this", "is", "a", "test", "slice"}
 	expect := []string{"this", "is", "a", "test"}
-	actual, ok := Pop(input)
-
-	if ok != nil {
-		failTest(t, expect, ok)
-		return
-	}
-
-	if len(actual) != len(expect) {
-		failTest(t, expect, actual)
-		return
-	}
+	actual := Pop(input)
 
 	for index, actualVal := range actual {
 		if actualVal != expect[index] {
@@ -131,14 +114,12 @@ func TestPop(t *testing.T) {
 	}
 }
 
-func TestPopNonSlice(t *testing.T) {
-	input := "this is not a slice"
-	expect := "Pop requires a slice"
-	actual, ok := Pop(input)
+func TestPopNilSlice(t *testing.T) {
+	var input []string
+	actual := Pop(input)
 
-	if ok == nil || ok.Error() != expect {
-		failTest(t, expect, actual)
-		return
+	if actual != nil {
+		failTest(t, nil, actual)
 	}
 }
 
@@ -160,9 +141,9 @@ func TestRemoveAt(t *testing.T) {
 	}
 }
 
-func TestRemoveAtNonSlice(t *testing.T) {
-	input := "i'm not a slice"
-	expect := "RemoveAt requires a slice"
+func TestRemoveAtNilSlice(t *testing.T) {
+	var input []string
+	expect := "slice is empty"
 	_, ok := RemoveAt(input, 1)
 
 	if ok == nil || ok.Error() != expect {
@@ -172,7 +153,7 @@ func TestRemoveAtNonSlice(t *testing.T) {
 
 func TestRemoveAtEmptySlice(t *testing.T) {
 	input := []string{}
-	expect := "Slice is empty"
+	expect := "slice is empty"
 	_, ok := RemoveAt(input, 1)
 
 	if ok == nil || ok.Error() != expect {
@@ -182,7 +163,7 @@ func TestRemoveAtEmptySlice(t *testing.T) {
 
 func TestRemoveAtIndexTooLow(t *testing.T) {
 	input := []int{1, 2, 3, 4}
-	expect := "Index out of range"
+	expect := "index out of range"
 	_, ok := RemoveAt(input, -1)
 
 	if ok == nil || ok.Error() != expect {
@@ -192,7 +173,7 @@ func TestRemoveAtIndexTooLow(t *testing.T) {
 
 func TestRemoveAtIndexTooHigh(t *testing.T) {
 	input := []int{1, 2, 3, 4}
-	expect := "Index out of range"
+	expect := "index out of range"
 	_, ok := RemoveAt(input, 4)
 
 	if ok == nil || ok.Error() != expect {
@@ -203,12 +184,7 @@ func TestRemoveAtIndexTooHigh(t *testing.T) {
 func TestShift(t *testing.T) {
 	input := []string{"this", "is", "a", "test", "slice"}
 	expect := []string{"is", "a", "test", "slice"}
-	actual, ok := Shift(input)
-
-	if ok != nil {
-		failTest(t, expect, ok)
-		return
-	}
+	actual := Shift(input)
 
 	if len(actual) != len(expect) {
 		failTest(t, expect, actual)
@@ -223,13 +199,12 @@ func TestShift(t *testing.T) {
 	}
 }
 
-func TestShiftNonSlice(t *testing.T) {
-	input := "this is not a slice"
-	expect := "Shift requires a slice"
-	actual, ok := Shift(input)
+func TestShiftNilSlice(t *testing.T) {
+	var input []string
+	actual := Shift(input)
 
-	if ok == nil || ok.Error() != expect {
-		failTest(t, expect, actual)
+	if actual != nil {
+		failTest(t, nil, actual)
 		return
 	}
 }
@@ -237,17 +212,9 @@ func TestShiftNonSlice(t *testing.T) {
 func TestSomeTrue(t *testing.T) {
 	input := []string{"this", "is", "a", "test", "slice"}
 	expect := true
-	actual, ok := Some(input, func(index int, value interface{}) bool {
-		if val, isString := value.(string); isString {
-			return len(val) > 0
-		}
-		return false
+	actual := Some(input, func(index int, value string) bool {
+		return len(value) > 0
 	})
-
-	if ok != nil {
-		failTest(t, expect, ok)
-		return
-	}
 
 	if actual != expect {
 		failTest(t, expect, actual)
@@ -257,35 +224,24 @@ func TestSomeTrue(t *testing.T) {
 func TestSomeFalse(t *testing.T) {
 	input := []string{"this", "is", "a", "test", "slice"}
 	expect := false
-	actual, ok := Some(input, func(index int, value interface{}) bool {
-		if val, isString := value.(string); isString {
-			return len(val) == 0
-		}
-		return false
+	actual := Some(input, func(index int, value string) bool {
+		return len(value) == 0
 	})
-
-	if ok != nil {
-		failTest(t, expect, ok)
-		return
-	}
 
 	if actual != expect {
 		failTest(t, expect, actual)
 	}
 }
 
-func TestSomeNonSlice(t *testing.T) {
-	input := "testing"
-	expect := errors.New("Some requires a slice")
-	_, ok := Some(input, func(index int, value interface{}) bool {
-		if val, isString := value.(string); isString {
-			return len(val) == 0
-		}
-		return false
+func TestSomeNilSlice(t *testing.T) {
+	var input []int
+	expect := false
+	actual := Some(input, func(index int, value int) bool {
+		return value > 0
 	})
 
-	if ok.Error() != expect.Error() {
-		failTest(t, expect, ok)
+	if actual != expect {
+		failTest(t, expect, actual)
 	}
 }
 
@@ -307,8 +263,8 @@ func TestContainsFalse(t *testing.T) {
 	}
 }
 
-func TestContainsNonSlice(t *testing.T) {
-	input := "not a slice"
+func TestContainsNilSlice(t *testing.T) {
+	var input []string
 	expect := false
 	actual := Contains(input, "not found")
 	if actual != expect {
@@ -317,5 +273,5 @@ func TestContainsNonSlice(t *testing.T) {
 }
 
 func failTest(t *testing.T, expect interface{}, actual interface{}) {
-	t.Errorf(fmt.Sprintf("\nExpected: %v\nActual: %v", expect, actual))
+	t.Errorf("Expected: %v\nActual: %v\n", expect, actual)
 }
