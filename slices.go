@@ -89,12 +89,12 @@ func Shift[T any](slice []T) []T {
 
 // Min returns the lowest entry in the slice.
 func Min[T constraints.Ordered](slice []T) (result T) {
-	for _, val := range slice {
-		if val < result {
+	for i, val := range slice {
+		if i == 0 || val < result {
 			result = val
 		}
 	}
-	return result
+	return
 }
 
 // Max returns the highest entry in the slice.
@@ -104,5 +104,5 @@ func Max[T constraints.Ordered](slice []T) (result T) {
 			result = val
 		}
 	}
-	return result
+	return
 }

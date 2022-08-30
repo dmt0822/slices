@@ -1,6 +1,7 @@
 package slices
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -12,7 +13,7 @@ func TestEveryTrue(t *testing.T) {
 	})
 
 	if actual != expect {
-		failTest(t, expect, actual)
+		failTest(t, expect, actual, "")
 	}
 }
 
@@ -24,7 +25,7 @@ func TestEveryFalse(t *testing.T) {
 	})
 
 	if actual != expect {
-		failTest(t, expect, actual)
+		failTest(t, expect, actual, "")
 	}
 }
 
@@ -36,7 +37,7 @@ func TestEveryEmptySlice(t *testing.T) {
 	})
 
 	if actual != expect {
-		failTest(t, expect, actual)
+		failTest(t, expect, actual, "")
 	}
 }
 
@@ -48,13 +49,13 @@ func TestFilterWithString(t *testing.T) {
 	})
 
 	if len(actual) != len(expect) {
-		failTest(t, expect, actual)
+		failTest(t, expect, actual, "")
 		return
 	}
 
 	for index, actualVal := range actual {
 		if actualVal != expect[index] {
-			failTest(t, expect, actual)
+			failTest(t, expect, actual, "")
 		}
 	}
 }
@@ -67,13 +68,13 @@ func TestFilterWithInt(t *testing.T) {
 	})
 
 	if len(actual) != len(expect) {
-		failTest(t, expect, actual)
+		failTest(t, expect, actual, "")
 		return
 	}
 
 	for index, actualVal := range actual {
 		if actualVal != expect[index] {
-			failTest(t, expect, actual)
+			failTest(t, expect, actual, "")
 		}
 	}
 }
@@ -85,7 +86,7 @@ func TestFilterEmptySlice(t *testing.T) {
 		return value%2 == 0
 	})
 	if len(actual) > 0 {
-		failTest(t, expect, actual)
+		failTest(t, expect, actual, "")
 		return
 	}
 }
@@ -96,7 +97,7 @@ func TestFilterNilSlice(t *testing.T) {
 		return value == 0
 	})
 	if len(actual) > 0 {
-		failTest(t, []int{}, actual)
+		failTest(t, []int{}, actual, "")
 		return
 	}
 }
@@ -108,7 +109,7 @@ func TestPop(t *testing.T) {
 
 	for index, actualVal := range actual {
 		if actualVal != expect[index] {
-			failTest(t, expect, actual)
+			failTest(t, expect, actual, "")
 			return
 		}
 	}
@@ -119,7 +120,7 @@ func TestPopNilSlice(t *testing.T) {
 	actual := Pop(input)
 
 	if actual != nil {
-		failTest(t, nil, actual)
+		failTest(t, nil, actual, "")
 	}
 }
 
@@ -129,13 +130,13 @@ func TestRemoveAt(t *testing.T) {
 	actual, ok := RemoveAt(input, 1)
 
 	if ok != nil {
-		failTest(t, expect, ok)
+		failTest(t, expect, ok, "")
 		return
 	}
 
 	for index, actualVal := range actual {
 		if actualVal != expect[index] {
-			failTest(t, expect, actual)
+			failTest(t, expect, actual, "")
 			return
 		}
 	}
@@ -147,7 +148,7 @@ func TestRemoveAtNilSlice(t *testing.T) {
 	_, ok := RemoveAt(input, 1)
 
 	if ok == nil || ok.Error() != expect {
-		failTest(t, expect, ok)
+		failTest(t, expect, ok, "")
 	}
 }
 
@@ -157,7 +158,7 @@ func TestRemoveAtEmptySlice(t *testing.T) {
 	_, ok := RemoveAt(input, 1)
 
 	if ok == nil || ok.Error() != expect {
-		failTest(t, expect, ok)
+		failTest(t, expect, ok, "")
 	}
 }
 
@@ -167,7 +168,7 @@ func TestRemoveAtIndexTooLow(t *testing.T) {
 	_, ok := RemoveAt(input, -1)
 
 	if ok == nil || ok.Error() != expect {
-		failTest(t, expect, ok)
+		failTest(t, expect, ok, "")
 	}
 }
 
@@ -177,7 +178,7 @@ func TestRemoveAtIndexTooHigh(t *testing.T) {
 	_, ok := RemoveAt(input, 4)
 
 	if ok == nil || ok.Error() != expect {
-		failTest(t, expect, ok)
+		failTest(t, expect, ok, "")
 	}
 }
 
@@ -187,13 +188,13 @@ func TestShift(t *testing.T) {
 	actual := Shift(input)
 
 	if len(actual) != len(expect) {
-		failTest(t, expect, actual)
+		failTest(t, expect, actual, "")
 		return
 	}
 
 	for index, actualVal := range actual {
 		if actualVal != expect[index] {
-			failTest(t, expect, actual)
+			failTest(t, expect, actual, "")
 			return
 		}
 	}
@@ -204,7 +205,7 @@ func TestShiftNilSlice(t *testing.T) {
 	actual := Shift(input)
 
 	if actual != nil {
-		failTest(t, nil, actual)
+		failTest(t, nil, actual, "")
 		return
 	}
 }
@@ -217,7 +218,7 @@ func TestSomeTrue(t *testing.T) {
 	})
 
 	if actual != expect {
-		failTest(t, expect, actual)
+		failTest(t, expect, actual, "")
 	}
 }
 
@@ -229,7 +230,7 @@ func TestSomeFalse(t *testing.T) {
 	})
 
 	if actual != expect {
-		failTest(t, expect, actual)
+		failTest(t, expect, actual, "")
 	}
 }
 
@@ -241,7 +242,7 @@ func TestSomeNilSlice(t *testing.T) {
 	})
 
 	if actual != expect {
-		failTest(t, expect, actual)
+		failTest(t, expect, actual, "")
 	}
 }
 
@@ -250,7 +251,7 @@ func TestContainsTrue(t *testing.T) {
 	expect := true
 	actual := Contains(input, "is")
 	if actual != expect {
-		failTest(t, expect, actual)
+		failTest(t, expect, actual, "")
 	}
 }
 
@@ -259,7 +260,7 @@ func TestContainsFalse(t *testing.T) {
 	expect := false
 	actual := Contains(input, "not found")
 	if actual != expect {
-		failTest(t, expect, actual)
+		failTest(t, expect, actual, "")
 	}
 }
 
@@ -268,10 +269,94 @@ func TestContainsNilSlice(t *testing.T) {
 	expect := false
 	actual := Contains(input, "not found")
 	if actual != expect {
-		failTest(t, expect, actual)
+		failTest(t, expect, actual, "")
 	}
 }
 
-func failTest(t *testing.T, expect interface{}, actual interface{}) {
-	t.Errorf("Expected: %v\nActual: %v\n", expect, actual)
+func TestMinInt(t *testing.T) {
+	inp := []int{1, 2, 3, 0, 4}
+	actual := Min(inp)
+	expect := 0
+
+	if actual != expect {
+		failTest(t, expect, actual, "")
+	}
+}
+
+func TestMinFloat(t *testing.T) {
+	inp := []float64{1, 2, 3, 0, 4}
+	actual := Min(inp)
+	expect := 0.0
+
+	if actual != expect {
+		failTest(t, expect, actual, "")
+	}
+}
+
+func TestMinString(t *testing.T) {
+	inp := []string{"d", "b", "c", "a"}
+	actual := Min(inp)
+	expect := "a"
+
+	if actual != expect {
+		failTest(t, expect, actual, "")
+	}
+}
+
+func TestMinEmptyString(t *testing.T) {
+	inp := []string{"a", "b", "", "z"}
+	actual := Min(inp)
+	expect := ""
+
+	if actual != expect {
+		failTest(t, expect, actual, "")
+	}
+}
+
+func TestMaxInt(t *testing.T) {
+	inp := []int{1, 4, 3, 0, 4}
+	actual := Max(inp)
+	expect := 4
+
+	if actual != expect {
+		failTest(t, expect, actual, "")
+	}
+}
+
+func TestMaxFloat(t *testing.T) {
+	inp := []float64{1, 2, 3, 0, 4}
+	actual := Max(inp)
+	expect := 4.0
+
+	if actual != expect {
+		failTest(t, expect, actual, "")
+	}
+}
+
+func TestMaxString(t *testing.T) {
+	inp := []string{"d", "b", "c", "a"}
+	actual := Max(inp)
+	expect := "d"
+
+	if actual != expect {
+		failTest(t, expect, actual, "")
+	}
+}
+
+func TestMaxEmptyString(t *testing.T) {
+	inp := []string{"a", "b", "", "z"}
+	actual := Max(inp)
+	expect := "z"
+
+	if actual != expect {
+		failTest(t, expect, actual, "")
+	}
+}
+
+func failTest(t *testing.T, expect interface{}, actual interface{}, message string) {
+	out := fmt.Sprintf("Expected: %v\nActual: %v\n", expect, actual)
+	if message != "" {
+		out += message
+	}
+	t.Errorf(out)
 }
